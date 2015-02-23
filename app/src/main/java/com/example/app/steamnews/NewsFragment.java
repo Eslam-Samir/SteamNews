@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NewsFragment extends Fragment {
-
+    ArrayAdapter titles_adapter;
     public NewsFragment() {
     }
 
@@ -22,19 +22,21 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
 
-        String[] titles = {"Dota 2 Update - February 20th 2015",
-                "Three Lane Highway: the problem with Year Beast isn't the cost, it's the reward",
-                "Dota 2 Update - February 18th 2015",
-                "Dote Night: Seriously, Puck This",
-                "Dota 2 Update - February 16th 2015",
-        };
-
-        List<String> titles_arraylist = new ArrayList<String>(Arrays.asList(titles));
-        ArrayAdapter titles_adapter = new ArrayAdapter(getActivity(), R.layout.list_item_news, R.id.list_item_title, titles_arraylist);
+        titles_adapter = new ArrayAdapter(getActivity(), R.layout.list_item_news, R.id.list_item_title, new ArrayList<String>());
         ListView news_list = (ListView) rootView.findViewById(R.id.listview_news);
         news_list.setAdapter(titles_adapter);
         return rootView;
     }
 
+    private void updateNewsFeed(){
+        // 570 is "dota 2" news id
+        FetchNewsTask FetchNews = new FetchNewsTask(getActivity(),titles_adapter);
+        FetchNews.execute("570");
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateNewsFeed();
+    }
 }
