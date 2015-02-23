@@ -1,4 +1,4 @@
-package com.example.app.steamnews;
+package com.example.app.steamnews.Extras;
 
 import android.content.Context;
 import android.net.Uri;
@@ -16,9 +16,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
@@ -27,17 +24,6 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
     public FetchNewsTask(Context context, ArrayAdapter ada) {
         mContext = context;
         mNewsAdapter = ada;
-    }
-
-    /* The date/time conversion code is going to be moved outside the asynctask later,
- * so for convenience we're breaking it out into its own method now.
- */
-    private String getReadableDateString(long time){
-        // Because the API returns a unix timestamp (measured in seconds),
-        // it must be converted to milliseconds in order to be converted to valid date.
-        Date date = new Date(time * 1000);
-        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
-        return format.format(date).toString();
     }
 
     private String[] GetNewsFromJSON(String newsJsonStr, int num_of_news) throws JSONException {
