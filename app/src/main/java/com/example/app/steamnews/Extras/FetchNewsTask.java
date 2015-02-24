@@ -41,6 +41,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             }
         } */
         final String NEWS_LIST_NAME = "appnews";
+        final String NEWS_APPID = "appid";
         final String NEWS_LIST_ARRAY = "newsitems";
         final String NEWS_TITLE = "title";
         final String NEWS_AUTHER = "author";
@@ -50,9 +51,10 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
 
         String[] news = new String[num_of_news] ;
 
-        JSONObject newsJSON = new JSONObject(newsJsonStr);
-        JSONObject newsList = newsJSON.getJSONObject(NEWS_LIST_NAME);
-        JSONArray newsArray = newsList.getJSONArray(NEWS_LIST_ARRAY);
+        JSONObject json = new JSONObject(newsJsonStr);
+        JSONObject newsJSON = json.getJSONObject(NEWS_LIST_NAME);
+        JSONObject appid = newsJSON.getJSONObject(NEWS_APPID);
+        JSONArray newsArray = newsJSON.getJSONArray(NEWS_LIST_ARRAY);
         for (int i=0; i<num_of_news; i++)
         {
             JSONObject one_news = newsArray.getJSONObject(i);
