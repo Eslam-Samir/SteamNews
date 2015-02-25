@@ -1,10 +1,15 @@
 package com.example.app.steamnews.Extras;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+
+import com.example.app.steamnews.data.NewsContract.NewsEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,14 +21,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
     private final Context mContext;
-    private ArrayAdapter mNewsAdapter;
-    public FetchNewsTask(Context context, ArrayAdapter ada) {
+    private NewsAdapter mNewsAdapter;
+    public FetchNewsTask(Context context, NewsAdapter ada) {
         mContext = context;
         mNewsAdapter = ada;
+    }
+
+    private String getReadableDateString(long time){
+        // Because the API returns a unix timestamp (measured in seconds),
+        // it must be converted to milliseconds in order to be converted to valid date.
+        Date date = new Date(time);
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        return format.format(date).toString();
     }
 
     private String[] GetNewsFromJSON(String newsJsonStr, int num_of_news) throws JSONException {
@@ -53,7 +68,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
 
         JSONObject json = new JSONObject(newsJsonStr);
         JSONObject newsJSON = json.getJSONObject(NEWS_LIST_NAME);
-        JSONObject appid = newsJSON.getJSONObject(NEWS_APPID);
+        String gameid = newsJSON.getString(NEWS_APPID);
         JSONArray newsArray = newsJSON.getJSONArray(NEWS_LIST_ARRAY);
         for (int i=0; i<num_of_news; i++)
         {
@@ -64,7 +79,8 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             String author = one_news.getString(NEWS_AUTHER);
             String contents = one_news.getString(NEWS_CONTENT);
             String feed_label = one_news.getString(NEWS_TYPE);
-
+            long newsID = addNews(gameid,title,contents,author,feed_label,date);
+            Log.d(LOG_TAG, Long.toString(newsID));
             news[i] = title;
         }
         return news;
@@ -160,12 +176,50 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
 
     @Override
     protected void onPostExecute(String[] result) {
-        if (result != null) {
-            mNewsAdapter.clear();
-            for(String NewsTitleStr : result) {
-                mNewsAdapter.add(NewsTitleStr);
-            }
-            // New data is back from the server.  Hooray!
+    }
+
+    public long addNews(String GameID, String title, String content, String author, String feed_label, String date) {
+        long newsId;
+
+        Log.v(LOG_TAG, "inserting " + title + ", with content: " + content);
+
+        // First, check if the location with this city name exists in the db
+        Cursor newsCursor = mContext.getContentResolver().query(
+                NewsEntry.CONTENT_URI,
+                new String[]{NewsEntry._ID},
+                NewsEntry.COLUMN_GAME_ID + " = ?",
+                new String[]{GameID},
+                null);
+
+        if (newsCursor.moveToFirst()) {
+            int newsIdIndex = newsCursor.getColumnIndex(NewsEntry._ID);
+            newsId = newsCursor.getLong(newsIdIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
+            ContentValues newsValues = new ContentValues();
+
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
+            newsValues.put(NewsEntry.COLUMN_TITLE, title);
+            newsValues.put(NewsEntry.COLUMN_GAME_ID, GameID);
+            newsValues.put(NewsEntry.COLUMN_CONTENTS, content);
+            newsValues.put(NewsEntry.COLUMN_AUTHOR, author);
+            newsValues.put(NewsEntry.COLUMN_DATE, date);
+            newsValues.put(NewsEntry.COLUMN_FEED_LABEL, feed_label);
+
+            Log.v(LOG_TAG, newsValues.toString());
+            // Finally, insert location data into the database.
+            Uri insertedUri = mContext.getContentResolver().insert(NewsEntry.CONTENT_URI,newsValues);
+            Log.v(LOG_TAG, insertedUri.toString());
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            newsId = ContentUris.parseId(insertedUri);
         }
+
+        // Always close our cursor
+        if ( null != newsCursor ) newsCursor.close();
+
+        // Wait, that worked?  Yes!
+        return newsId;
     }
 }

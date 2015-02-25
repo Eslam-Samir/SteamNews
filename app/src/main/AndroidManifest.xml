@@ -26,6 +26,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.app.steamnews.MainActivity" />
         </activity>
+
+        <provider
+            android:authorities="com.example.app.steamnews"
+            android:name=".data.NewsProvider">
+        </provider>
     </application>
 
 </manifest>

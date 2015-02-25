@@ -1,6 +1,7 @@
 package com.example.app.steamnews.Extras;
 
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,5 +13,10 @@ public class Utility {
         Date date = new Date(time * 1000);
         SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
         return format.format(date).toString();
+    }
+
+    static String formatDate(long dateInMillis) {
+        Date date = new Date(dateInMillis);
+        return DateFormat.getDateInstance().format(date);
     }
 }
