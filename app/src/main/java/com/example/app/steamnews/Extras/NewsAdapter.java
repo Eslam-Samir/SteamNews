@@ -24,7 +24,7 @@ public class NewsAdapter extends CursorAdapter {
         int idx_date = cursor.getColumnIndex(NewsEntry.COLUMN_DATE);
         int idx_author = cursor.getColumnIndex(NewsEntry.COLUMN_AUTHOR);
 
-        return Utility.formatDate(cursor.getLong(idx_date)) +
+        return Utility.getReadableDateString(cursor.getLong(idx_date)) +
                 " - " + cursor.getString(idx_title);
 
     }

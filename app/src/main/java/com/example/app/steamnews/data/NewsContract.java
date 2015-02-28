@@ -1,5 +1,6 @@
 package com.example.app.steamnews.data;
 
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
@@ -7,7 +8,6 @@ import android.provider.BaseColumns;
 import android.text.format.Time;
 
 public class NewsContract {
-
     public static final String CONTENT_AUTHORITY = "com.example.app.steamnews";
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
@@ -17,13 +17,7 @@ public class NewsContract {
     public static final String PATH_NEWS = "news";
 
 
-    public static long normalizeDate(long startDate) {
-        // normalize the start date to the beginning of the (UTC) day
-        Time time = new Time();
-        time.setToNow();
-        int julianDay = Time.getJulianDay(startDate, time.gmtoff);
-        return time.setJulianDay(julianDay);
-    }
+
 
     public static final class NewsEntry implements BaseColumns {
 
@@ -53,8 +47,6 @@ public class NewsContract {
 
         public static final String COLUMN_GAME_ID = "game_id";
 
-
-
         public static Uri buildNewsUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
@@ -64,25 +56,8 @@ public class NewsContract {
             return uri;
         }
 
-        public static Uri buildNewsWithGameIdAndStartDate(
-                String gameID, String startDate) {
-            return CONTENT_URI.buildUpon().appendPath(gameID)
-                    .appendQueryParameter(COLUMN_DATE, startDate).build();
-        }
-
-        public static Uri buildNewsWithGameIdAndDate(String GameID, long date) {
-            return CONTENT_URI.buildUpon().appendPath(GameID)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
         public static String getGameIDFromUri(Uri uri) {
-                       return uri.getPathSegments().get(1);
+            return uri.getPathSegments().get(1);
         }
-
-        public static String getDateFromUri(Uri uri) { return uri.getPathSegments().get(2); }
-
-        public static String getStartDateFromUri(Uri uri) { return uri.getQueryParameter(COLUMN_DATE); }
     }
-
-
 }

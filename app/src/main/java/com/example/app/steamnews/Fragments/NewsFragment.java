@@ -32,8 +32,7 @@ public class NewsFragment extends Fragment {
 
         // Sort order:  Ascending, by date.
         String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " ASC";
-        Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameIdAndStartDate(
-                "570", String.valueOf(System.currentTimeMillis()));
+        Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameId("570");
 
         Cursor cur = getActivity().getContentResolver().query(newsWithGameIdUri,
                 null, null, null, sortOrder);
