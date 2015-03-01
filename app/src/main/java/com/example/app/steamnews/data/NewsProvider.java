@@ -9,9 +9,12 @@ import android.net.Uri;
 
 import com.example.app.steamnews.data.NewsContract.NewsEntry;
 
+import static com.example.app.steamnews.data.NewsProvider.NEWS;
+
 public class NewsProvider extends ContentProvider {
     static final int NEWS = 100;
     static final int NEWS_WITH_GAME_ID = 101;
+    static final int NEWS_WITH_GAME_ID_AND_NEWS_ID = 102;
 
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -21,13 +24,18 @@ public class NewsProvider extends ContentProvider {
         final String authority = NewsContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, NewsContract.PATH_NEWS, NEWS);
         matcher.addURI(authority, NewsContract.PATH_NEWS + "/#", NEWS_WITH_GAME_ID); //Game ID is an integer not string
-
+        matcher.addURI(authority, NewsContract.PATH_NEWS + "/#/#", NEWS_WITH_GAME_ID_AND_NEWS_ID);
         return matcher;
     }
 
     //static strings for the selections
     private static final String sGameIdSelection = NewsEntry.TABLE_NAME + "." +
                                                    NewsEntry.COLUMN_GAME_ID + " = ? ";
+
+    private static final String sGameIdWithNewsIdSelection =
+            NewsEntry.TABLE_NAME + "." +
+                    NewsEntry._ID + " = ? AND " +
+                    NewsEntry.COLUMN_GAME_ID + " = ? ";
 
     private NewsDbHelper mOpenHelper;
 
@@ -69,11 +77,34 @@ public class NewsProvider extends ContentProvider {
                 retCursor = getNewsByGameId(uri, projection, sortOrder);
                 break;
 
+            // If the incoming URI was for an item in a table
+            case NEWS_WITH_GAME_ID_AND_NEWS_ID:
+                retCursor = getNewsByGameIdAndNewsID(uri, projection, sortOrder);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
+    }
+
+    private Cursor getNewsByGameIdAndNewsID(Uri uri, String[] projection, String sortOrder) {
+        String id = NewsEntry.getIdFromUri(uri);
+        String GameID = NewsEntry.getGameIDFromUri(uri);
+
+        String selection = sGameIdWithNewsIdSelection;
+        String[] selectionArgs = new String[]{id,GameID};
+
+        return mOpenHelper.getReadableDatabase().query(
+                NewsContract.NewsEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
     }
 
     private Cursor getNewsByGameId(Uri uri, String[] projection, String sortOrder) {
@@ -163,6 +194,10 @@ public class NewsProvider extends ContentProvider {
         switch (match) {
             case NEWS:
                 return NewsEntry.CONTENT_TYPE;
+            case NEWS_WITH_GAME_ID:
+                return NewsEntry.CONTENT_TYPE;
+            case NEWS_WITH_GAME_ID_AND_NEWS_ID:
+                return NewsEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

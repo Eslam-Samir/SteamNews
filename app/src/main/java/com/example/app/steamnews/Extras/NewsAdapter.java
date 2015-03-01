@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.app.steamnews.Fragments.NewsFragment;
 import com.example.app.steamnews.R;
-import com.example.app.steamnews.data.NewsContract;
 
 public class NewsAdapter extends CursorAdapter {
 
@@ -35,13 +35,13 @@ public class NewsAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         // Read date from cursor
-        String dateString = cursor.getString(NewsContract.COL_NEWS_DATE);
+        String dateString = cursor.getString(NewsFragment.COL_NEWS_DATE);
         // Find TextView and set formatted date on it
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateString));
 
-        // Read weather forecast from cursor
-        String title = cursor.getString(NewsContract.COL_NEWS_TITLE);
-        // Find TextView and set weather forecast on it
+        // Read title from cursor
+        String title = cursor.getString(NewsFragment.COL_NEWS_TITLE);
+        // Find TextView and set title on it
         viewHolder.titleView.setText(title);
     }
 

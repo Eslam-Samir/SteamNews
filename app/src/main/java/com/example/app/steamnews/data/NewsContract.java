@@ -36,6 +36,8 @@ public class NewsContract {
 
         public static final String TABLE_NAME = "news";
 
+        public static final String COLUMN_GAME_ID = "game_id";
+
         // Date, stored as long in milliseconds since the epoch
         public static final String COLUMN_DATE = "date";
 
@@ -50,7 +52,8 @@ public class NewsContract {
 
         public static final String COLUMN_FEED_LABEL = "feed_label";
 
-        public static final String COLUMN_GAME_ID = "game_id";
+        //external urls
+        public static final String COLUMN_URL = "url";
 
         public static Uri buildNewsUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -60,8 +63,16 @@ public class NewsContract {
             return CONTENT_URI.buildUpon().appendPath(GameID).build();
         }
 
+        public static Uri buildNewsWithGameIdAndNewsID(String GameID, long ID) {
+            return CONTENT_URI.buildUpon().appendPath(GameID).appendPath(Long.toString(ID)).build();
+        }
+
         public static String getGameIDFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
+        }
+
+        public static String getIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(2);
         }
     }
 }

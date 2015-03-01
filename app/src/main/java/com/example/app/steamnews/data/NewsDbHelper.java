@@ -30,7 +30,8 @@ public class NewsDbHelper extends SQLiteOpenHelper {
                 NewsEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 NewsEntry.COLUMN_CONTENTS + " TEXT NOT NULL," +
                 NewsEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
-                NewsEntry.COLUMN_FEED_LABEL + " TEXT NOT NULL " +
+                NewsEntry.COLUMN_FEED_LABEL + " TEXT NOT NULL, " +
+                NewsEntry.COLUMN_URL + " TEXT NOT NULL " +
                 ");";
         sqLiteDatabase.execSQL(SQL_CREATE_NEWS_TABLE);
     }

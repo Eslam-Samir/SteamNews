@@ -22,7 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
-public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
+public class FetchNewsTask extends AsyncTask<String, Void, Void> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
     private final Context mContext;
     private NewsAdapter mNewsAdapter;
@@ -31,7 +31,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
         mNewsAdapter = ada;
     }
 
-    private String[] GetNewsFromJSON(String newsJsonStr, int num_of_news) throws JSONException {
+    private void GetNewsFromJSON(String newsJsonStr, int num_of_news) throws JSONException {
 
 
     /*  JSON Object appnews
@@ -53,8 +53,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
         final String NEWS_CONTENT = "contents";
         final String NEWS_TYPE = "feedlabel";
         final String NEWS_DATE = "date";
-
-        String[] news = new String[num_of_news] ;
+        final String NEWS_URL = "url";
 
         JSONObject json = new JSONObject(newsJsonStr);
         JSONObject newsJSON = json.getJSONObject(NEWS_LIST_NAME);
@@ -69,14 +68,13 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             String author = one_news.getString(NEWS_AUTHER);
             String contents = one_news.getString(NEWS_CONTENT);
             String feed_label = one_news.getString(NEWS_TYPE);
-            long newsID = addNews(gameid,title,contents,author,feed_label,date);
+            String url = one_news.getString(NEWS_URL);
+            long newsID = addNews(gameid,title,contents,author,feed_label,date,url);
             Log.d(LOG_TAG, Long.toString(newsID));
-            news[i] = title;
         }
-        return news;
     }
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
 
         // If there's no app id, there's nothing to look up.
         if (params.length == 0) {
@@ -136,10 +134,13 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             newsJsonStr = buffer.toString();
-
+            GetNewsFromJSON(newsJsonStr, num_of_news);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             return null;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -153,22 +154,11 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             }
         }
 
-        try {
-            return GetNewsFromJSON(newsJsonStr, num_of_news);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
-        }
-
         // This will only happen if there was an error getting or parsing the forecast.
         return null;
     }
 
-    @Override
-    protected void onPostExecute(String[] result) {
-    }
-
-    public long addNews(String GameID, String title, String content, String author, String feed_label, long date) {
+    public long addNews(String GameID, String title, String content, String author, String feed_label, long date, String url) {
         long newsId;
 
         Log.v(LOG_TAG, "inserting " + title + ", with content: " + content);
@@ -196,6 +186,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             newsValues.put(NewsEntry.COLUMN_AUTHOR, author);
             newsValues.put(NewsEntry.COLUMN_DATE, Utility.getDbDateString(new Date(date * 1000L)));
             newsValues.put(NewsEntry.COLUMN_FEED_LABEL, feed_label);
+            newsValues.put(NewsEntry.COLUMN_URL, url);
 
             Log.v(LOG_TAG, newsValues.toString());
             // Finally, insert location data into the database.

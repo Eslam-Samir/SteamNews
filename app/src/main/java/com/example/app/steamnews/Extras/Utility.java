@@ -2,6 +2,7 @@ package com.example.app.steamnews.Extras;
 
 
 import android.content.Context;
+import android.text.Html;
 
 import com.example.app.steamnews.R;
 
@@ -12,14 +13,23 @@ import java.util.Date;
 
 public class Utility {
 
+    public static String getReadableDateString(String timeStr) {
+        // Because the API returns a unix timestamp (measured in seconds),
+        // it must be converted to milliseconds in order to be converted to valid date.
+        Date date = getDateFromDb(timeStr);
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        return format.format(date);
+    }
+
     public static final String DATE_FORMAT = "yyyyMMdd";
 
     /**
      * Converts Date class to a string representation, used for easy comparison and database lookup.
+     *
      * @param date The input date
      * @return a DB-friendly representation of the date, using the format defined in DATE_FORMAT.
      */
-    public static String getDbDateString(Date date){
+    public static String getDbDateString(Date date) {
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
@@ -28,6 +38,7 @@ public class Utility {
 
     /**
      * Converts a dateText to a long Unix time representation
+     *
      * @param dateText the input date string
      * @return the Date object
      */
@@ -35,7 +46,7 @@ public class Utility {
         SimpleDateFormat dbDateFormat = new SimpleDateFormat(DATE_FORMAT);
         try {
             return dbDateFormat.parse(dateText);
-        } catch ( ParseException e ) {
+        } catch (ParseException e) {
             e.printStackTrace();
             return null;
         }
@@ -79,6 +90,7 @@ public class Utility {
 
     /**
      * Converts db date format to the format "Month day", e.g "June 24".
+     *
      * @param dateStr The db formatted date string, expected to be of the form specified
      *                in Utility.DATE_FORMAT
      * @return The day in the form of a string formatted "December 6"
@@ -136,5 +148,10 @@ public class Utility {
         }
     }
 
-
+    //To escape the html tags in the news contents
+    public static String removeHtml(String html) {
+        return Html.fromHtml(html).toString();
+    }
 }
+
+
