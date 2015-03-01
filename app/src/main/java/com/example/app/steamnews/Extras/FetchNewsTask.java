@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import com.example.app.steamnews.data.NewsContract.NewsEntry;
 
@@ -21,7 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
@@ -66,7 +64,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
         {
             JSONObject one_news = newsArray.getJSONObject(i);
 
-            String date = one_news.getString(NEWS_DATE);
+            long date = one_news.getLong(NEWS_DATE);
             String title = one_news.getString(NEWS_TITLE);
             String author = one_news.getString(NEWS_AUTHER);
             String contents = one_news.getString(NEWS_CONTENT);
@@ -170,7 +168,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
     protected void onPostExecute(String[] result) {
     }
 
-    public long addNews(String GameID, String title, String content, String author, String feed_label, String date) {
+    public long addNews(String GameID, String title, String content, String author, String feed_label, long date) {
         long newsId;
 
         Log.v(LOG_TAG, "inserting " + title + ", with content: " + content);
@@ -196,7 +194,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
             newsValues.put(NewsEntry.COLUMN_GAME_ID, GameID);
             newsValues.put(NewsEntry.COLUMN_CONTENTS, content);
             newsValues.put(NewsEntry.COLUMN_AUTHOR, author);
-            newsValues.put(NewsEntry.COLUMN_DATE, date);
+            newsValues.put(NewsEntry.COLUMN_DATE, Utility.getDbDateString(new Date(date * 1000L)));
             newsValues.put(NewsEntry.COLUMN_FEED_LABEL, feed_label);
 
             Log.v(LOG_TAG, newsValues.toString());
@@ -208,7 +206,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
         }
 
         // Always close our cursor
-        if ( null != newsCursor ) newsCursor.close();
+        if (newsCursor !=  null) newsCursor.close();
 
         // Wait, that worked?  Yes!
         return newsId;

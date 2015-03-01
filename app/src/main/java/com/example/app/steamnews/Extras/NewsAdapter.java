@@ -9,23 +9,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.app.steamnews.R;
-import com.example.app.steamnews.data.NewsContract.NewsEntry;
-
+import com.example.app.steamnews.data.NewsContract;
 
 public class NewsAdapter extends CursorAdapter {
-    public NewsAdapter(Context context, Cursor c, int flags) {
+
+    public NewsAdapter(Context context, Cursor c, int flags)
+    {
         super(context, c, flags);
-    }
-
-    private String convertCursorRowToUXFormat(Cursor cursor) {
-        // get row indices for our cursor
-        int idx_title = cursor.getColumnIndex(NewsEntry.COLUMN_TITLE);
-        int idx_content = cursor.getColumnIndex(NewsEntry.COLUMN_CONTENTS);
-        int idx_date = cursor.getColumnIndex(NewsEntry.COLUMN_DATE);
-        int idx_author = cursor.getColumnIndex(NewsEntry.COLUMN_AUTHOR);
-
-        return Utility.getReadableDateString(cursor.getLong(idx_date)) +
-                " - " + cursor.getString(idx_title);
 
     }
 
@@ -33,15 +23,35 @@ public class NewsAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_news, parent, false);
 
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        // our view is pretty simple here --- just a text view
-        // we'll keep the UI functional with a simple (and slow!) binding.
 
-        TextView tv = (TextView) view.findViewById(R.id.list_item_title);
-        tv.setText(convertCursorRowToUXFormat(cursor));
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        // Read date from cursor
+        String dateString = cursor.getString(NewsContract.COL_NEWS_DATE);
+        // Find TextView and set formatted date on it
+        viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateString));
+
+        // Read weather forecast from cursor
+        String title = cursor.getString(NewsContract.COL_NEWS_TITLE);
+        // Find TextView and set weather forecast on it
+        viewHolder.titleView.setText(title);
+    }
+
+    public static class ViewHolder {
+        public final TextView dateView;
+        public final TextView titleView;
+
+        public ViewHolder(View view) {
+            dateView = (TextView) view.findViewById(R.id.list_item_date);
+            titleView = (TextView) view.findViewById(R.id.list_item_title);
+        }
     }
 }

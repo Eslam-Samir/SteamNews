@@ -5,9 +5,17 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.format.Time;
 
 public class NewsContract {
+
+    public static final int COL_NEWS_ID = 0;
+    public static final int COL_NEWS_GAME_ID = 1;
+    public static final int COL_NEWS_DATE = 2;
+    public static final int COL_NEWS_TITLE = 3;
+    public static final int COL_NEWS_CONTENTS = 4;
+    public static final int COL_NEWS_AUTHOR = 5;
+    public static final int COL_NEWS_FEED_LABEL = 6;
+
     public static final String CONTENT_AUTHORITY = "com.example.app.steamnews";
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
@@ -15,9 +23,6 @@ public class NewsContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_NEWS = "news";
-
-
-
 
     public static final class NewsEntry implements BaseColumns {
 
@@ -52,8 +57,7 @@ public class NewsContract {
         }
 
         public static Uri buildNewsWithGameId(String GameID) {
-            Uri uri = CONTENT_URI.buildUpon().appendPath(GameID).build();
-            return uri;
+            return CONTENT_URI.buildUpon().appendPath(GameID).build();
         }
 
         public static String getGameIDFromUri(Uri uri) {

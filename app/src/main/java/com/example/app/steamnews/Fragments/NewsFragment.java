@@ -1,6 +1,5 @@
 package com.example.app.steamnews.Fragments;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,17 +7,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.app.steamnews.DetailActivity;
 import com.example.app.steamnews.Extras.FetchNewsTask;
 import com.example.app.steamnews.Extras.NewsAdapter;
 import com.example.app.steamnews.R;
 import com.example.app.steamnews.data.NewsContract;
-
-import java.util.ArrayList;
 
 public class NewsFragment extends Fragment {
     NewsAdapter titles_adapter;
@@ -31,7 +25,7 @@ public class NewsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
 
         // Sort order:  Ascending, by date.
-        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " ASC";
+        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC";
         Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameId("570");
 
         Cursor cur = getActivity().getContentResolver().query(newsWithGameIdUri,
