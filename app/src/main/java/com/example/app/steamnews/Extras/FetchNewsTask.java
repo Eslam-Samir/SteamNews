@@ -79,7 +79,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
 
         String format = "json";
         int num_of_news = 14;
-        int max_length = 400;
+  //      int max_length = 400;
 
         try {
             // Construct the URL for the news query
@@ -87,13 +87,13 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
             final String STEAM_NEWS_BASE_URL = "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?";
             final String GAME_ID_PARAM = "appid";
             final String NEWS_COUNT_PARAM = "count";
-            final String NEWS_MAX_LENGTH_PARAM = "maxlength";
+ //           final String NEWS_MAX_LENGTH_PARAM = "maxlength";
             final String FORMAT_PARAM = "format";
 
             Uri builtUri = Uri.parse(STEAM_NEWS_BASE_URL).buildUpon()
                     .appendQueryParameter(GAME_ID_PARAM, GAMEID)
                     .appendQueryParameter(NEWS_COUNT_PARAM, Integer.toString(num_of_news))
-                    .appendQueryParameter(NEWS_MAX_LENGTH_PARAM, Integer.toString(max_length))
+   //                 .appendQueryParameter(NEWS_MAX_LENGTH_PARAM, Integer.toString(max_length)) //I'm not using this parameter
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .build();
             Log.e("main",builtUri.toString());
