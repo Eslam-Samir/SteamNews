@@ -2,6 +2,8 @@ package com.example.app.steamnews.Extras;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Html;
 
 import com.example.app.steamnews.R;
@@ -13,11 +15,24 @@ import java.util.Date;
 
 public class Utility {
 
+    public static String getPreferredGame(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(context.getString(R.string.pref_game_key),
+                context.getString(R.string.pref_game_default));
+    }
+
     public static String getReadableDateString(String timeStr) {
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
         Date date = getDateFromDb(timeStr);
-        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d - yyyy");
+        return format.format(date);
+    }
+
+    public static String getOldDate(String dateStr)
+    {
+        Date date = getDateFromDb(dateStr);
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         return format.format(date);
     }
 
@@ -81,10 +96,20 @@ public class Utility {
                 // If the input date is less than a week in the past, just return the day name.
                 return getDayName(context, dateStr);
             } else {
-                // Otherwise, use the form "Mon Jun 3"
-                SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-                return shortenedDateFormat.format(inputDate);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(todayDate);
+                calendar.add(Calendar.DATE, -30);
+                String monthPastString = getDbDateString(calendar.getTime());
+                if (dateStr.compareTo(monthPastString) > 0){
+                    //use the form "Mon Jun 3"
+                    SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+                    return shortenedDateFormat.format(inputDate);
+                } else {
+                    // Otherwise, use the form "10/12/2014"
+                    return getOldDate(dateStr);
+                }
             }
+
         }
     }
 

@@ -1,0 +1,32 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <!-- Label for the game preference [CHAR LIMIT=30] -->
+    <string name="pref_games_label">Select The Game</string>
+
+    <string name="pref_game_key">games</string>
+
+    <string name="pref_game_default">570</string>
+
+    <string-array name="pref_list_game_ids">
+        <item>Dota 2</item>
+        <item>Team Fortress</item>
+        <item>Team Fortress 2</item>
+        <item>Portal</item>
+        <item>Portal 2</item>
+        <item>Left 4 Dead 2</item>
+    </string-array>
+    <string-array name="pref_list_game_ids_values">
+        <item>570</item>
+        <item>440</item>
+        <item>985</item>
+        <item>400</item>
+        <item>620</item>
+        <item>550</item>
+    </string-array>
+</resources>

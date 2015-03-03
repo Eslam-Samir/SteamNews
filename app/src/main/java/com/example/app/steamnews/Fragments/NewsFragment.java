@@ -18,13 +18,14 @@ import android.support.v4.content.CursorLoader;
 import com.example.app.steamnews.*;
 import com.example.app.steamnews.Extras.FetchNewsTask;
 import com.example.app.steamnews.Extras.NewsAdapter;
+import com.example.app.steamnews.Extras.Utility;
 import com.example.app.steamnews.R;
 import com.example.app.steamnews.data.NewsContract;
 import com.example.app.steamnews.data.NewsContract.NewsEntry;
 
 public class NewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NEWS_LOADER = 0;
-    private static final String GAMEID = "570";   // 570 is "dota 2" app id
+    private String GAMEID ;
     NewsAdapter titles_adapter;
 
     private static final String[] News_COLUMNS = {
@@ -56,7 +57,6 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         titles_adapter = new NewsAdapter(getActivity(), null, 0);
         ListView news_list = (ListView) rootView.findViewById(R.id.listview_news);
         news_list.setAdapter(titles_adapter);
-
         news_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long id) {
@@ -74,14 +74,22 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private void updateNewsFeed(){
-        FetchNewsTask FetchNews = new FetchNewsTask(getActivity(),titles_adapter);
-        FetchNews.execute(GAMEID);
+        FetchNewsTask FetchNews = new FetchNewsTask(getActivity());
+        FetchNews.execute();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         updateNewsFeed();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (GAMEID != null && !GAMEID.equals(Utility.getPreferredGame(getActivity()))) {
+            getLoaderManager().restartLoader(NEWS_LOADER, null, this);
+        }
     }
 
     @Override
@@ -92,10 +100,10 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        GAMEID = Utility.getPreferredGame(getActivity());
         // Sort order:  Descending, by date.
         String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC";
         Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameId(GAMEID);
-
         return new CursorLoader(
                 getActivity(),
                 newsWithGameIdUri,

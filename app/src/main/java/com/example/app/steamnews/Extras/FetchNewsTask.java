@@ -25,14 +25,11 @@ import java.util.Date;
 public class FetchNewsTask extends AsyncTask<String, Void, Void> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
     private final Context mContext;
-    private NewsAdapter mNewsAdapter;
-    public FetchNewsTask(Context context, NewsAdapter ada) {
+    public FetchNewsTask(Context context) {
         mContext = context;
-        mNewsAdapter = ada;
     }
 
     private void GetNewsFromJSON(String newsJsonStr, int num_of_news) throws JSONException {
-
 
     /*  JSON Object appnews
         {
@@ -75,12 +72,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
     }
     @Override
     protected Void doInBackground(String... params) {
-
-        // If there's no app id, there's nothing to look up.
-        if (params.length == 0) {
-            return null;
-        }
-
+        String GAMEID = Utility.getPreferredGame(mContext);
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String newsJsonStr = null;
@@ -99,12 +91,12 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
             final String FORMAT_PARAM = "format";
 
             Uri builtUri = Uri.parse(STEAM_NEWS_BASE_URL).buildUpon()
-                    .appendQueryParameter(GAME_ID_PARAM, params[0])
+                    .appendQueryParameter(GAME_ID_PARAM, GAMEID)
                     .appendQueryParameter(NEWS_COUNT_PARAM, Integer.toString(num_of_news))
                     .appendQueryParameter(NEWS_MAX_LENGTH_PARAM, Integer.toString(max_length))
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .build();
-
+            Log.e("main",builtUri.toString());
             URL url = new URL(builtUri.toString());
 
             // Create the request to steampowered, and open the connection
