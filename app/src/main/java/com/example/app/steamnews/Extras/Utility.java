@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
+import android.util.Log;
 
 import com.example.app.steamnews.R;
 
@@ -176,6 +178,34 @@ public class Utility {
     //To escape the html tags in the news contents
     public static String removeHtml(String html) {
         return Html.fromHtml(html).toString();
+    }
+
+
+    //Finds images url
+    public static String findUrl(String content) {
+        String imageUrl = "image not found";
+        if(content.contains("<img"))
+        {
+            int start = content.indexOf("<img");
+            String content2 = content.substring(start);
+            int end = content2.indexOf(">") ;
+
+            String imageAttribute = content2.substring(0, end);
+
+            if(imageAttribute.contains(" src=")){
+
+                int start2 = imageAttribute.indexOf(" src=") + 6;
+                String content3 = imageAttribute.substring(start2);
+                int end2 = content3.indexOf('"') ;
+                imageUrl = content3.substring(0,end2);
+                Log.e("url",imageUrl);
+            }
+            else
+            {
+                return "image not found";
+            }
+        }
+        return imageUrl ;
     }
 }
 

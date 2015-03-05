@@ -2,6 +2,7 @@ package com.example.app.steamnews.Fragments;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -11,11 +12,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.app.steamnews.Extras.FetchImageTask;
 import com.example.app.steamnews.Extras.Utility;
 import com.example.app.steamnews.R;
 import com.example.app.steamnews.data.NewsContract;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
@@ -66,7 +72,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (intent == null) {
             return null;
         }
-        Log.v("what", intent.getData().toString());
 
 
         // Return a CursorLoader that will take care of
@@ -85,7 +90,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor data) {
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!data.moveToFirst()) { return; }
-        Log.v("what", String.valueOf(data.getCount()));
         String dateString = data.getString(NewsFragment.COL_NEWS_DATE);
         String author = data.getString(NewsFragment.COL_NEWS_AUTHOR);
         String title = data.getString(NewsFragment.COL_NEWS_TITLE);
@@ -97,6 +101,32 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         TextView detailAuthorTextView = (TextView)getView().findViewById(R.id.detail_author);
         TextView detailDateTextView = (TextView)getView().findViewById(R.id.detail_date);
         TextView detailUrlTextView = (TextView)getView().findViewById(R.id.detail_url);
+
+        ImageView image = (ImageView) getView().findViewById(R.id.image);
+        String imageUrl = Utility.findUrl(contents);
+
+        if(!imageUrl.equals("image not found")){
+           /* FetchImageTask fetchImage = new FetchImageTask(image);
+            fetchImage.execute(imageUrl);*/
+
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            ImageLoaderConfiguration mImageLoaderConfig =
+                    new ImageLoaderConfiguration.Builder(getActivity())
+                            .denyCacheImageMultipleSizesInMemory()
+                            .build();
+            imageLoader.init(mImageLoaderConfig);
+            DisplayImageOptions defaultOptions =
+                    new DisplayImageOptions.Builder()
+                            .cacheInMemory()
+                            .cacheOnDisc()
+        //                  .showImageForEmptyUri(R.drawable.empty_photo)
+        //                  .showStubImage(R.drawable.empty_photo)
+                            .build();
+
+            imageLoader.displayImage(imageUrl, image, defaultOptions);
+
+        }
+
 
         detailContentTextView.setText(Utility.removeHtml(contents));
         detailTitleTextView.setText(title);

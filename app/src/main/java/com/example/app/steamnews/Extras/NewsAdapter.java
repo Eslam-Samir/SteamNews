@@ -3,6 +3,7 @@ package com.example.app.steamnews.Extras;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,6 @@ public class NewsAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-
         // Read date from cursor
         String dateString = cursor.getString(NewsFragment.COL_NEWS_DATE);
         // Find TextView and set formatted date on it

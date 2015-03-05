@@ -1,11 +1,14 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context="com.example.app.steamnews.Fragments.DetailFragment">
 <RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="com.example.app.steamnews.Fragments.DetailFragment">
 
     <TextView
         android:layout_width="match_parent"
@@ -24,6 +27,12 @@
         android:layout_below="@id/detail_title"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detail_date"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:id="@+id/detail_contents"
@@ -31,7 +40,7 @@
         android:layout_margin="5dp"
         android:linksClickable="true"
         android:autoLink="web"
-        android:layout_below="@id/detail_date"
+        android:layout_below="@id/image"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <TextView

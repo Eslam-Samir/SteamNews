@@ -70,6 +70,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
             Log.d(LOG_TAG, Long.toString(newsID));
         }
     }
+
     @Override
     protected Void doInBackground(String... params) {
         String GAMEID = Utility.getPreferredGame(mContext);
@@ -96,7 +97,6 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
    //                 .appendQueryParameter(NEWS_MAX_LENGTH_PARAM, Integer.toString(max_length)) //I'm not using this parameter
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .build();
-            Log.e("main",builtUri.toString());
             URL url = new URL(builtUri.toString());
 
             // Create the request to steampowered, and open the connection
