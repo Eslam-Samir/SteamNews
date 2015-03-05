@@ -27,11 +27,31 @@
         android:layout_below="@id/detail_title"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
+    <RelativeLayout
+        android:id="@+id/image_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:minHeight="150dp"
+        android:layout_below="@id/detail_date"
+        android:visibility="gone">
+
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/detail_date"/>
+        android:layout_centerInParent="true"/>
+
+    <ProgressBar
+        android:id="@+id/loading_image_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        style="?android:progressBarStyleLarge"
+        android:visibility="gone"
+        />
+    </RelativeLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -40,7 +60,7 @@
         android:layout_margin="5dp"
         android:linksClickable="true"
         android:autoLink="web"
-        android:layout_below="@id/image"
+        android:layout_below="@id/image_container"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <TextView

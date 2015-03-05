@@ -23,6 +23,7 @@
         <activity
             android:name=".DetailActivity"
             android:label="@string/title_activity_detail"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -42,6 +43,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.app.steamnews.MainActivity" />
         </activity>
+        <activity
+            android:name=".FullScreenImageActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/noActionBar" />
     </application>
 
 </manifest>
