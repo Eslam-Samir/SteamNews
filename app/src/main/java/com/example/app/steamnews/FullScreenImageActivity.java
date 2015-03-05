@@ -1,6 +1,5 @@
 package com.example.app.steamnews;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -89,13 +88,6 @@ public class FullScreenImageActivity extends ActionBarActivity{
                 public void onLoadingComplete(String s, View view, Bitmap bitmap) {
                     loading_bar.setVisibility(View.GONE);
                     showedImage = bitmap;
-                    image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Dialog dialog = new Dialog(FullScreenImageActivity.this);
-                            dialog.show();
-                        }
-                    });
                 }
 
                 @Override

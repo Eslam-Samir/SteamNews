@@ -1,8 +1,10 @@
 package com.example.app.steamnews.Extras;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
@@ -176,9 +178,7 @@ public class Utility {
     }
 
     //To escape the html tags in the news contents
-    public static String removeHtml(String html) {
-        return Html.fromHtml(html).toString();
-    }
+    public static String removeHtml(String html) {return Html.fromHtml(html).toString();}
 
 
     //Finds images url
