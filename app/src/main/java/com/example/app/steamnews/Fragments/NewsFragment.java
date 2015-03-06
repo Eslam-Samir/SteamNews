@@ -1,13 +1,10 @@
 package com.example.app.steamnews.Fragments;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +28,6 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     private String GAMEID ;
     private NewsAdapter titles_adapter;
     private int num_of_news = 10;
-    int flag = 0;
     private ListView news_list;
     private static final String NUM_OF_NEWS_KEY = "num_of_news";
     private static final String SELECTED_KEY = "selected_position";
@@ -90,6 +86,12 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
 
         if (savedInstanceState != null && savedInstanceState.containsKey(NUM_OF_NEWS_KEY)) {
             num_of_news = savedInstanceState.getInt(NUM_OF_NEWS_KEY);
+        }
+
+        if (mPosition != ListView.INVALID_POSITION ) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            news_list.smoothScrollToPosition(mPosition);
         }
         return rootView;
     }
@@ -155,11 +157,6 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         // Swap the new cursor in.
         titles_adapter.swapCursor(cursor);
-        if (mPosition != ListView.INVALID_POSITION) {
-            // If we don't need to restart the loader, and there's a desired position to restore
-            // to, do so now.
-            news_list.smoothScrollToPosition(mPosition);
-        }
 
         news_list.setOnScrollListener(new AbsListView.OnScrollListener() {
             int currentFirstVisibleItem;
@@ -189,6 +186,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                 }
             }
         });
+
     }
 
     @Override

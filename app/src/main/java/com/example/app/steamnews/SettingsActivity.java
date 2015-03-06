@@ -88,9 +88,10 @@ public class SettingsActivity extends PreferenceActivity
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this,MainActivity.class);
-        startActivity(intent);
-        finish();
+          Intent intent = new Intent(this,MainActivity.class);
+          startActivity(intent);
+          finish();
+
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

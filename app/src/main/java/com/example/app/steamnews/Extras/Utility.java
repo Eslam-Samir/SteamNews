@@ -1,13 +1,10 @@
 package com.example.app.steamnews.Extras;
 
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 
 import com.example.app.steamnews.R;
@@ -129,8 +126,7 @@ public class Utility {
         try {
             Date inputDate = dbDateFormat.parse(dateStr);
             SimpleDateFormat monthDayFormat = new SimpleDateFormat("MMMM dd");
-            String monthDayString = monthDayFormat.format(inputDate);
-            return monthDayString;
+            return monthDayFormat.format(inputDate);
         } catch (ParseException e) {
             e.printStackTrace();
             return null;
@@ -178,7 +174,20 @@ public class Utility {
     }
 
     //To escape the html tags in the news contents
-    public static String removeHtml(String html) {return Html.fromHtml(html).toString();}
+    public static String removeHtml(String html) {
+        String htmlWithoutImg = html ;
+        int i = 0; //i -> to avoid infinite loop
+        while(htmlWithoutImg.contains("<img") && i<5) {
+                int start = htmlWithoutImg.indexOf("<img");
+                String content = htmlWithoutImg.substring(start);
+                int end = content.indexOf(">") + 1;
+
+                String htmlImgTag = content.substring(0, end);
+                htmlWithoutImg = htmlWithoutImg.replace(htmlImgTag,"");
+            i++;
+        }
+        return Html.fromHtml(htmlWithoutImg).toString();
+    }
 
 
     //Finds images url
@@ -190,14 +199,14 @@ public class Utility {
             String content2 = content.substring(start);
             int end = content2.indexOf(">") ;
 
-            String imageAttribute = content2.substring(0, end);
+            String imageTag = content2.substring(0, end);
 
-            if(imageAttribute.contains(" src=")){
+            if(imageTag.contains(" src=")){
 
-                int start2 = imageAttribute.indexOf(" src=") + 6;
-                String content3 = imageAttribute.substring(start2);
-                int end2 = content3.indexOf('"') ;
-                imageUrl = content3.substring(0,end2);
+                int start2 = imageTag.indexOf(" src=") + 6;
+                String imageSource = imageTag.substring(start2);
+                int end2 = imageSource.indexOf('"') ;
+                imageUrl = imageSource.substring(0,end2);
                 Log.e("url",imageUrl);
             }
             else
@@ -222,23 +231,19 @@ public class Utility {
     }
 
     public static int selectIcon(String GameID){
-        if(GameID.equals("570")){
-            return R.drawable.dota_2_icon_1;
-        }
-        else if(GameID.equals("440")){
-            return R.drawable.team_fortress_icon_3;
-        }
-        else if(GameID.equals("400")){
-            return R.drawable.portal_icon_2;
-        }
-        else if(GameID.equals("620")){
-            return R.drawable.portal_2_icon_2;
-        }
-        else if(GameID.equals("550")){
-            return R.drawable.left_4_dead_icon_1;
-        }
-        else{
-            return 0;
+        switch (GameID) {
+            case "570":
+                return R.drawable.dota_2_icon_1;
+            case "440":
+                return R.drawable.team_fortress_icon_3;
+            case "400":
+                return R.drawable.portal_icon_2;
+            case "620":
+                return R.drawable.portal_2_icon_2;
+            case "550":
+                return R.drawable.left_4_dead_icon_1;
+            default:
+                return 0;
         }
     }
 }

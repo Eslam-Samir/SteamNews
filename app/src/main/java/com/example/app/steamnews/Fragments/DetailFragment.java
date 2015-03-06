@@ -8,8 +8,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -31,8 +36,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final int DETAIL_LOADER = 0;
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private static final String News_SHARE_HASHTAG = "#SteamNews" ;
+    private String shareNewsString;
     private ProgressBar progressBar ;
-
+    private RelativeLayout container;
+    private ShareActionProvider mShareActionProvider;
+    private String gameID ;
     private static final String[] News_COLUMNS = {
             NewsContract.NewsEntry.TABLE_NAME + "." + NewsContract.NewsEntry._ID,
             NewsContract.NewsEntry.COLUMN_GAME_ID,
@@ -52,6 +61,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_NEWS_AUTHOR = 5;
     public static final int COL_NEWS_FEED_LABEL = 6;
     public static final int COL_NEWS_URL = 7;
+    public static final int COL_NEWS_ONLINE_FEED_ID = 8;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -71,13 +81,37 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.detailfragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        if (shareNewsString != null) {
+            mShareActionProvider.setShareIntent(createShareNewsIntent());
+        }
+    }
+
+    private Intent createShareNewsIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareNewsString + News_SHARE_HASHTAG);
+        return shareIntent;
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         Log.v(LOG_TAG, "In onCreateLoader");
         Intent intent = getActivity().getIntent();
         if (intent == null) {
             return null;
         }
-
 
         // Return a CursorLoader that will take care of
         // creating a Cursor for the data being displayed.
@@ -95,26 +129,30 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor data) {
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!data.moveToFirst()) { return; }
-        String dateString = data.getString(NewsFragment.COL_NEWS_DATE);
-        String author = data.getString(NewsFragment.COL_NEWS_AUTHOR);
-        String title = data.getString(NewsFragment.COL_NEWS_TITLE);
-        String contents = data.getString(NewsFragment.COL_NEWS_CONTENTS);
-        String url = data.getString(NewsFragment.COL_NEWS_URL);
+        gameID = data.getString(COL_NEWS_GAME_ID);
+        String dateString = data.getString(COL_NEWS_DATE);
+        String author = data.getString(COL_NEWS_AUTHOR);
+        String title = data.getString(COL_NEWS_TITLE);
+        String contents = data.getString(COL_NEWS_CONTENTS);
+        String url = data.getString(COL_NEWS_URL);
 
         TextView detailContentTextView = (TextView)getView().findViewById(R.id.detail_contents);
         TextView detailTitleTextView = (TextView)getView().findViewById(R.id.detail_title);
         TextView detailAuthorTextView = (TextView)getView().findViewById(R.id.detail_author);
         TextView detailDateTextView = (TextView)getView().findViewById(R.id.detail_date);
         TextView detailUrlTextView = (TextView)getView().findViewById(R.id.detail_url);
+        container = (RelativeLayout)getView().findViewById(R.id.image_container);
+        progressBar = (ProgressBar)getView().findViewById(R.id.loading_image_progress);
 
         ImageView image = (ImageView) getView().findViewById(R.id.image);
         String imageUrl = Utility.findUrl(contents);
 
         if(!imageUrl.equals("image not found")){
-            RelativeLayout container = (RelativeLayout)getView().findViewById(R.id.image_container);
-            progressBar = (ProgressBar)getView().findViewById(R.id.loading_image_progress);
-            container.setVisibility(View.VISIBLE);
             loadImage(imageUrl, image);
+        }
+        else{
+            container.setBackgroundColor(0xFFFFFF);
+            image.setImageResource(Utility.selectIcon(gameID));
         }
 
 
@@ -123,9 +161,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         detailDateTextView.setText(Utility.getReadableDateString(dateString));
         detailUrlTextView.setText(url);
 
-        if(!author.equals("") && author != null )
+        if(!author.equals(""))
         {
             detailAuthorTextView.setText("Author: " + author);
+        }
+
+        shareNewsString = Utility.selectText(getActivity(),gameID) + " News \n"
+                + Utility.getReadableDateString(dateString)+ "\n"
+                + title + "\n"
+                + "Link: " + url + "\n" ;
+
+        // If onCreateOptionsMenu has already happened, we need to update the share intent now.
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareNewsIntent());
         }
     }
 
@@ -145,6 +193,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 new DisplayImageOptions.Builder()
                         .cacheInMemory()
                         .cacheOnDisc()
+                        .showImageOnFail(Utility.selectIcon(gameID))
     //                  .showImageForEmptyUri(R.drawable.empty_photo)
     //                  .showStubImage(R.drawable.empty_photo)
                         .build();
@@ -176,11 +225,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         message = "Unknown error";
                         break;
                 }
+                container.setMinimumWidth(50);
+                container.setMinimumHeight(50);
+                container.setBackgroundColor(0xFFFFFF);
                 Log.e("ImageLoadingFailed",message);
             }
 
             @Override
             public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                container.setMinimumWidth(50);
+                container.setMinimumHeight(50);
                 progressBar.setVisibility(View.GONE);
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override
