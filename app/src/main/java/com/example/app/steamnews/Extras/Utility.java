@@ -207,6 +207,40 @@ public class Utility {
         }
         return imageUrl ;
     }
+
+    public static String selectText(Context context, String GameID){
+       String[] games =  context.getResources().getStringArray(R.array.pref_list_game_ids);
+       String[] gameIds =  context.getResources().getStringArray(R.array.pref_list_game_ids_values);
+
+        for(int i = 0; i<gameIds.length ; i++)
+        {
+            if(gameIds[i].equals(GameID)){
+                return games[i];
+            }
+        }
+        return "no_match";
+    }
+
+    public static int selectIcon(String GameID){
+        if(GameID.equals("570")){
+            return R.drawable.dota_2_icon_1;
+        }
+        else if(GameID.equals("440")){
+            return R.drawable.team_fortress_icon_3;
+        }
+        else if(GameID.equals("400")){
+            return R.drawable.portal_icon_2;
+        }
+        else if(GameID.equals("620")){
+            return R.drawable.portal_2_icon_2;
+        }
+        else if(GameID.equals("550")){
+            return R.drawable.left_4_dead_icon_1;
+        }
+        else{
+            return 0;
+        }
+    }
 }
 
 

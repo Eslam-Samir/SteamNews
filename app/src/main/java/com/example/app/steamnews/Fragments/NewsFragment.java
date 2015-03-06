@@ -1,13 +1,17 @@
 package com.example.app.steamnews.Fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.support.v4.app.LoaderManager;
@@ -25,7 +29,14 @@ import com.example.app.steamnews.data.NewsContract.NewsEntry;
 public class NewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NEWS_LOADER = 0;
     private String GAMEID ;
-    NewsAdapter titles_adapter;
+    private NewsAdapter titles_adapter;
+    private int num_of_news = 10;
+    int flag = 0;
+    private ListView news_list;
+    private static final String NUM_OF_NEWS_KEY = "num_of_news";
+    private static final String SELECTED_KEY = "selected_position";
+
+    private int mPosition = ListView.INVALID_POSITION;
 
     private static final String[] News_COLUMNS = {
             NewsEntry.TABLE_NAME + "." + NewsEntry._ID,
@@ -46,15 +57,15 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public static final int COL_NEWS_AUTHOR = 5;
     public static final int COL_NEWS_FEED_LABEL = 6;
     public static final int COL_NEWS_URL = 7;
+    public static final int COL_NEWS_ONLINE_FEED_ID = 8;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
 
-
         titles_adapter = new NewsAdapter(getActivity(), null, 0);
-        ListView news_list = (ListView) rootView.findViewById(R.id.listview_news);
+        news_list = (ListView) rootView.findViewById(R.id.listview_news);
         news_list.setAdapter(titles_adapter);
         news_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -67,14 +78,25 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                     Intent intent = new Intent(getActivity(), DetailActivity.class).setData(NewsEntry.buildNewsWithGameIdAndNewsID(GAMEID,News_Id));
                     startActivity(intent);
                 }
+                mPosition = position;
             }
         });
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+                mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(NUM_OF_NEWS_KEY)) {
+            num_of_news = savedInstanceState.getInt(NUM_OF_NEWS_KEY);
+        }
         return rootView;
     }
 
     private void updateNewsFeed(){
         FetchNewsTask FetchNews = new FetchNewsTask(getActivity());
-        FetchNews.execute();
+        FetchNews.execute(num_of_news);
     }
 
     @Override
@@ -92,6 +114,21 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        if(num_of_news != 10)
+        {
+            outState.putInt(NUM_OF_NEWS_KEY, num_of_news);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(NEWS_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
@@ -101,7 +138,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         GAMEID = Utility.getPreferredGame(getActivity());
         // Sort order:  Descending, by date.
-        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC";
+        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC LIMIT " + num_of_news;
         Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameId(GAMEID);
         return new CursorLoader(
                 getActivity(),
@@ -118,7 +155,40 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         // Swap the new cursor in.
         titles_adapter.swapCursor(cursor);
+        if (mPosition != ListView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            news_list.smoothScrollToPosition(mPosition);
+        }
 
+        news_list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int currentFirstVisibleItem;
+            int currentVisibleItemCount;
+            int currentTotalItemCount;
+            int currentScrollState;
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                this.currentScrollState = scrollState;
+                if (currentVisibleItemCount + currentFirstVisibleItem >= currentTotalItemCount) {
+                    this.isScrollCompleted();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                this.currentFirstVisibleItem = firstVisibleItem;
+                this.currentVisibleItemCount = visibleItemCount;
+                this.currentTotalItemCount = totalItemCount;
+            }
+            /*detects if there's been a scroll which has completed */
+            private void isScrollCompleted() {
+                if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE) {
+                    num_of_news = num_of_news + 5;
+                    updateNewsFeed();
+                    getLoaderManager().restartLoader(NEWS_LOADER, null, NewsFragment.this);
+                }
+            }
+        });
     }
 
     @Override

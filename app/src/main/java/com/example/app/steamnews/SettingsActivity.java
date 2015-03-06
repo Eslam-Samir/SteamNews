@@ -18,7 +18,6 @@ public class SettingsActivity extends PreferenceActivity
     // since we use the preference change initially to populate the summary
     // field, we'll ignore that change at start of the activity
     boolean mBindingPreference;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +72,7 @@ public class SettingsActivity extends PreferenceActivity
                 if ( !mBindingPreference ) {
                     if (preference.getKey().equals(getString(R.string.pref_game_key))) {
                         FetchNewsTask newsTask = new FetchNewsTask(this);
-                        newsTask.execute();
+                        newsTask.execute(10);
                     } else {
                         // notify code that news may be impacted
                         getContentResolver().notifyChange(NewsContract.NewsEntry.CONTENT_URI, null);
@@ -85,6 +84,13 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(stringValue);
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

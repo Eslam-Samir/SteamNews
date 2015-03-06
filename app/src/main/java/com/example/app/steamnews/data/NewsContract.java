@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class NewsContract {
-
+/*
     public static final int COL_NEWS_ID = 0;
     public static final int COL_NEWS_GAME_ID = 1;
     public static final int COL_NEWS_DATE = 2;
@@ -15,7 +15,9 @@ public class NewsContract {
     public static final int COL_NEWS_CONTENTS = 4;
     public static final int COL_NEWS_AUTHOR = 5;
     public static final int COL_NEWS_FEED_LABEL = 6;
-
+    public static final int COL_NEWS_URL = 7;
+    public static final int COL_NEWS_ONLINE_FEED_ID = 8;
+*/
     public static final String CONTENT_AUTHORITY = "com.example.app.steamnews";
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
@@ -51,6 +53,8 @@ public class NewsContract {
         public static final String COLUMN_AUTHOR = "author";
 
         public static final String COLUMN_FEED_LABEL = "feed_label";
+
+        public static final String COLUMN_ONLINE_FEED_ID = "feed_id";
 
         //external urls
         public static final String COLUMN_URL = "url";

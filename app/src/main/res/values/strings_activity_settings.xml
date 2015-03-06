@@ -16,7 +16,6 @@
     <string-array name="pref_list_game_ids">
         <item>Dota 2</item>
         <item>Team Fortress</item>
-        <item>Team Fortress 2</item>
         <item>Portal</item>
         <item>Portal 2</item>
         <item>Left 4 Dead 2</item>
@@ -24,7 +23,6 @@
     <string-array name="pref_list_game_ids_values">
         <item>570</item>
         <item>440</item>
-        <item>985</item>
         <item>400</item>
         <item>620</item>
         <item>550</item>

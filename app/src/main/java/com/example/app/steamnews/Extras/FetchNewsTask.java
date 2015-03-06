@@ -22,7 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
-public class FetchNewsTask extends AsyncTask<String, Void, Void> {
+public class FetchNewsTask extends AsyncTask<Integer, Void, Void> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
     private final Context mContext;
     public FetchNewsTask(Context context) {
@@ -40,6 +40,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
                 JSON Object contents
                 JSON Object feedlabel
                 JSON Object date
+                JSON Object url
             }
         } */
         final String NEWS_LIST_NAME = "appnews";
@@ -51,6 +52,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
         final String NEWS_TYPE = "feedlabel";
         final String NEWS_DATE = "date";
         final String NEWS_URL = "url";
+        final String NEWS_ONLINE_ID = "gid";
 
         JSONObject json = new JSONObject(newsJsonStr);
         JSONObject newsJSON = json.getJSONObject(NEWS_LIST_NAME);
@@ -66,20 +68,21 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
             String contents = one_news.getString(NEWS_CONTENT);
             String feed_label = one_news.getString(NEWS_TYPE);
             String url = one_news.getString(NEWS_URL);
-            long newsID = addNews(gameid,title,contents,author,feed_label,date,url);
+            String online_feed_id = one_news.getString(NEWS_ONLINE_ID);
+            long newsID = addNews(gameid,title,contents,author,feed_label,date,url,online_feed_id);
             Log.d(LOG_TAG, Long.toString(newsID));
         }
     }
 
     @Override
-    protected Void doInBackground(String... params) {
+    protected Void doInBackground(Integer... params) {
         String GAMEID = Utility.getPreferredGame(mContext);
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String newsJsonStr = null;
 
         String format = "json";
-        int num_of_news = 14;
+        int num_of_news = params[0];
   //      int max_length = 400;
 
         try {
@@ -93,7 +96,7 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
 
             Uri builtUri = Uri.parse(STEAM_NEWS_BASE_URL).buildUpon()
                     .appendQueryParameter(GAME_ID_PARAM, GAMEID)
-                    .appendQueryParameter(NEWS_COUNT_PARAM, Integer.toString(num_of_news))
+                    .appendQueryParameter(NEWS_COUNT_PARAM, Long.toString(num_of_news))
    //                 .appendQueryParameter(NEWS_MAX_LENGTH_PARAM, Integer.toString(max_length)) //I'm not using this parameter
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .build();
@@ -150,17 +153,18 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    public long addNews(String GameID, String title, String content, String author, String feed_label, long date, String url) {
+    //Checks if the feed already exists in the database then inserts it if not
+    public long addNews(String GameID, String title, String content, String author, String feed_label, long date, String url, String online_id) {
         long newsId;
 
         Log.v(LOG_TAG, "inserting " + title + ", with content: " + content);
 
-        // First, check if the news with this title exists in the db
+        // First, check if the news with this id and date exists in the db
         Cursor newsCursor = mContext.getContentResolver().query(
                 NewsEntry.CONTENT_URI,
                 new String[]{NewsEntry._ID},
-                NewsEntry.COLUMN_TITLE + " = ?",
-                new String[]{title},
+                NewsEntry.COLUMN_ONLINE_FEED_ID + " = ? AND " + NewsEntry.COLUMN_DATE + " = ? ",
+                new String[]{online_id, Utility.getDbDateString(new Date(date * 1000L))},
                 null);
         if (newsCursor.moveToFirst()) {
             int newsIdIndex = newsCursor.getColumnIndex(NewsEntry._ID);
@@ -179,11 +183,11 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
             newsValues.put(NewsEntry.COLUMN_DATE, Utility.getDbDateString(new Date(date * 1000L)));
             newsValues.put(NewsEntry.COLUMN_FEED_LABEL, feed_label);
             newsValues.put(NewsEntry.COLUMN_URL, url);
+            newsValues.put(NewsEntry.COLUMN_ONLINE_FEED_ID, online_id);
 
-            Log.v(LOG_TAG, newsValues.toString());
             // Finally, insert location data into the database.
             Uri insertedUri = mContext.getContentResolver().insert(NewsEntry.CONTENT_URI,newsValues);
-            Log.v(LOG_TAG, insertedUri.toString());
+
             // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
             newsId = ContentUris.parseId(insertedUri);
         }
@@ -191,7 +195,6 @@ public class FetchNewsTask extends AsyncTask<String, Void, Void> {
         // Always close our cursor
         if (newsCursor !=  null) newsCursor.close();
 
-        // Wait, that worked?  Yes!
         return newsId;
     }
 }
