@@ -30,11 +30,6 @@
                 android:value="com.example.app.steamnews.MainActivity" />
         </activity>
 
-        <provider
-            android:name=".data.NewsProvider"
-            android:authorities="com.example.app.steamnews" >
-        </provider>
-
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -47,6 +42,13 @@
             android:name=".FullScreenImageActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/noActionBar" />
+
+        <provider
+            android:name=".data.NewsProvider"
+            android:authorities="com.example.app.steamnews"
+            android:exported="false"
+            android:enabled="true">
+        </provider>
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ package com.example.app.steamnews;
         import android.preference.Preference;
         import android.preference.PreferenceActivity;
         import android.preference.PreferenceManager;
+        import android.widget.ListView;
 
         import com.example.app.steamnews.Extras.FetchNewsTask;
         import com.example.app.steamnews.data.NewsContract;
@@ -71,6 +72,8 @@ public class SettingsActivity extends PreferenceActivity
                 // are we starting the preference activity?
                 if ( !mBindingPreference ) {
                     if (preference.getKey().equals(getString(R.string.pref_game_key))) {
+                        NewsContract.num_of_news = 10;
+                        NewsContract.mPosition = 0;
                         FetchNewsTask newsTask = new FetchNewsTask(this);
                         newsTask.execute(10);
                     } else {
@@ -84,14 +87,6 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(stringValue);
         }
         return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-          Intent intent = new Intent(this,MainActivity.class);
-          startActivity(intent);
-          finish();
-
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

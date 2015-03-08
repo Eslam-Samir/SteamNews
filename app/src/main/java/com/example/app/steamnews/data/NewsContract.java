@@ -5,6 +5,9 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.widget.ListView;
+
+import com.example.app.steamnews.Extras.Utility;
 
 public class NewsContract {
 /*
@@ -18,6 +21,10 @@ public class NewsContract {
     public static final int COL_NEWS_URL = 7;
     public static final int COL_NEWS_ONLINE_FEED_ID = 8;
 */
+
+    public static int num_of_news = 10;
+    public static int mPosition = ListView.INVALID_POSITION;
+
     public static final String CONTENT_AUTHORITY = "com.example.app.steamnews";
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact

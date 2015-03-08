@@ -23,16 +23,14 @@ import com.example.app.steamnews.R;
 import com.example.app.steamnews.data.NewsContract;
 import com.example.app.steamnews.data.NewsContract.NewsEntry;
 
+//TODO use services (syncadapter) to get notification
 public class NewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NEWS_LOADER = 0;
     private String GAMEID ;
     private NewsAdapter titles_adapter;
-    private int num_of_news = 10;
     private ListView news_list;
     private static final String NUM_OF_NEWS_KEY = "num_of_news";
     private static final String SELECTED_KEY = "selected_position";
-
-    private int mPosition = ListView.INVALID_POSITION;
 
     private static final String[] News_COLUMNS = {
             NewsEntry.TABLE_NAME + "." + NewsEntry._ID,
@@ -74,37 +72,50 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                     Intent intent = new Intent(getActivity(), DetailActivity.class).setData(NewsEntry.buildNewsWithGameIdAndNewsID(GAMEID,News_Id));
                     startActivity(intent);
                 }
-                mPosition = position;
+                NewsContract.mPosition = position;
             }
         });
 
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
             // The listview probably hasn't even been populated yet.  Actually perform the
             // swapout in onLoadFinished.
-                mPosition = savedInstanceState.getInt(SELECTED_KEY);
+            NewsContract.mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(NUM_OF_NEWS_KEY)) {
-            num_of_news = savedInstanceState.getInt(NUM_OF_NEWS_KEY);
+            NewsContract.num_of_news = savedInstanceState.getInt(NUM_OF_NEWS_KEY);
         }
 
-        if (mPosition != ListView.INVALID_POSITION ) {
+        if (NewsContract.mPosition != ListView.INVALID_POSITION ) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.
-            news_list.smoothScrollToPosition(mPosition);
+            news_list.smoothScrollToPosition(NewsContract.mPosition);
         }
         return rootView;
     }
 
     private void updateNewsFeed(){
         FetchNewsTask FetchNews = new FetchNewsTask(getActivity());
-        FetchNews.execute(num_of_news);
+        FetchNews.execute(NewsContract.num_of_news);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if(GAMEID == null) {
+            GAMEID = Utility.getPreferredGame(getActivity());
+        }
+        if(NewsContract.mPosition == 0)
+        {
+            news_list.setSelection(0);
+        }
         updateNewsFeed();
+    }
+
+    @Override
+    public void onDestroy() {
+        NewsContract.num_of_news = 10;
+        super.onDestroy();
     }
 
     @Override
@@ -120,12 +131,12 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         // When tablets rotate, the currently selected list item needs to be saved.
         // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
         // so check for that before storing.
-        if (mPosition != ListView.INVALID_POSITION) {
-            outState.putInt(SELECTED_KEY, mPosition);
+        if (NewsContract.mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, NewsContract.mPosition);
         }
-        if(num_of_news != 10)
+        if(NewsContract.num_of_news != 10)
         {
-            outState.putInt(NUM_OF_NEWS_KEY, num_of_news);
+            outState.putInt(NUM_OF_NEWS_KEY, NewsContract.num_of_news);
         }
         super.onSaveInstanceState(outState);
     }
@@ -140,7 +151,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         GAMEID = Utility.getPreferredGame(getActivity());
         // Sort order:  Descending, by date.
-        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC LIMIT " + num_of_news;
+        String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC LIMIT " + NewsContract.num_of_news;
         Uri newsWithGameIdUri = NewsContract.NewsEntry.buildNewsWithGameId(GAMEID);
         return new CursorLoader(
                 getActivity(),
@@ -180,7 +191,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
             /*detects if there's been a scroll which has completed */
             private void isScrollCompleted() {
                 if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE) {
-                    num_of_news = num_of_news + 5;
+                    NewsContract.num_of_news = NewsContract.num_of_news + 5;
                     updateNewsFeed();
                     getLoaderManager().restartLoader(NEWS_LOADER, null, NewsFragment.this);
                 }

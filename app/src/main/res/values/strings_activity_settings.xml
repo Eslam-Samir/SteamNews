@@ -19,6 +19,9 @@
         <item>Portal</item>
         <item>Portal 2</item>
         <item>Left 4 Dead 2</item>
+        <item>The Elder Scrolls V: Skyrim</item>
+        <item>Civilization V</item>
+        <item>Path of Exile</item>
     </string-array>
     <string-array name="pref_list_game_ids_values">
         <item>570</item>
@@ -26,5 +29,8 @@
         <item>400</item>
         <item>620</item>
         <item>550</item>
+        <item>72850</item>
+        <item>8930</item>
+        <item>238960</item>
     </string-array>
 </resources>

@@ -8,4 +8,6 @@
     <style name="noActionBar" parent="Theme.AppCompat.Light.NoActionBar">
 
     </style>
+
+    <!-- TODO change the style -->
 </resources>

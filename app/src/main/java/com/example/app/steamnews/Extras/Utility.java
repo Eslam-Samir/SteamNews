@@ -13,6 +13,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utility {
 
@@ -242,6 +245,12 @@ public class Utility {
                 return R.drawable.portal_2_icon_2;
             case "550":
                 return R.drawable.left_4_dead_icon_1;
+            case "72850":
+                return R.drawable.elder_scrolls_v_skyrim_icon;
+            case "8930":
+                return R.drawable.civilization_v_icon_1;
+            case "238960":
+                return R.drawable.path_of_exile_icon;
             default:
                 return 0;
         }

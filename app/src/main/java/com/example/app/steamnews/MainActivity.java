@@ -23,7 +23,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-
+    //TODO create two pane layout for tablets
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -42,7 +42,6 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
-            finish();
         }
 
         return super.onOptionsItemSelected(item);

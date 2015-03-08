@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
+//TODO replace with a service
 public class FetchNewsTask extends AsyncTask<Integer, Void, Void> {
     private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
     private final Context mContext;
