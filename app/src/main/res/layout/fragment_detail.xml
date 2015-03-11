@@ -44,22 +44,22 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" >
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="true"/>
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:adjustViewBounds="true"/>
 
-    <ProgressBar
-        android:id="@+id/loading_image_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        style="?android:progressBarStyleLarge"
-        android:visibility="gone"
-        />
+        <ProgressBar
+            android:id="@+id/loading_image_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            style="?android:progressBarStyleLarge"
+            android:visibility="gone"
+            />
     </RelativeLayout>
 
     <TextView
@@ -69,6 +69,7 @@
         android:layout_margin="5dp"
         android:linksClickable="true"
         android:autoLink="web"
+        android:textColorLink="@drawable/link_selector"
         android:layout_below="@id/image_container"
         android:fontFamily="sans-serif-condensed"
         android:textColor="@color/text_color"
@@ -82,6 +83,7 @@
         android:layout_marginBottom="10dp"
         android:linksClickable="true"
         android:autoLink="web"
+        android:textColorLink="@drawable/link_selector"
         android:layout_below="@id/detail_contents"
         android:fontFamily="sans-serif-condensed"
         android:textColor="@color/text_color"

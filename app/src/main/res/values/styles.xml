@@ -3,11 +3,28 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/actionbar_color</item>
+        <item name="colorPrimaryDark">@color/actionbar_color_Dark</item>
     </style>
 
     <style name="noActionBar" parent="Theme.AppCompat.Light.NoActionBar">
 
     </style>
 
-    <!-- TODO change the style -->
+    <!-- Settings activity theme. -->
+    <style name="SettingsTheme" parent="AppTheme">
+    </style>
+
+    <!-- Main activity theme. -->
+    <style name="NewsTheme" parent="AppTheme">
+        <item name="actionBarStyle">@style/ActionBar.Solid</item>
+    </style>
+
+    <!-- main activity action bar styles -->
+    <style name="ActionBar.Solid" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="displayOptions">useLogo|showTitle|showHome</item>
+        <item name="logo">@drawable/ic_launcher</item>
+        <item name="android:background">@color/actionbar_color</item>
+    </style>
+
 </resources>

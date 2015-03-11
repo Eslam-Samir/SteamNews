@@ -32,6 +32,7 @@ public class FullScreenImageActivity extends ActionBarActivity{
     private ProgressBar loading_bar ;
     private Bitmap showedImage;
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

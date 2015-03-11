@@ -107,4 +107,8 @@ public class NewsAdapter extends CursorAdapter {
     public int getViewTypeCount() {
         return VIEW_TYPE_COUNT;
     }
+
+    public void setUseFirstItemLayout(boolean UseFirstItemLayout) {
+        mUseFirstItemLayout = UseFirstItemLayout;
+    }
 }

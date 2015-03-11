@@ -3,6 +3,7 @@ package com.example.app.steamnews.Fragments;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -32,11 +33,14 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+@SuppressWarnings("deprecation")
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
+    public static final String DETAIL_URI = "URI";
+    private Uri mUri;
     private static final int DETAIL_LOADER = 0;
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
-    private static final String News_SHARE_HASHTAG = "#SteamNews" ;
+    private static final String News_SHARE_HASHTAG = "#SteamNewsApp" ;
     private String shareNewsString;
     private ProgressBar progressBar ;
     private RelativeLayout container;
@@ -53,15 +57,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             NewsContract.NewsEntry.COLUMN_URL,
     };
 
-    public static final int COL_NEWS_ID = 0;
+//  public static final int COL_NEWS_ID = 0;
     public static final int COL_NEWS_GAME_ID = 1;
     public static final int COL_NEWS_DATE = 2;
     public static final int COL_NEWS_TITLE = 3;
     public static final int COL_NEWS_CONTENTS = 4;
     public static final int COL_NEWS_AUTHOR = 5;
-    public static final int COL_NEWS_FEED_LABEL = 6;
+//  public static final int COL_NEWS_FEED_LABEL = 6;
     public static final int COL_NEWS_URL = 7;
-    public static final int COL_NEWS_ONLINE_FEED_ID = 8;
+//  public static final int COL_NEWS_ONLINE_FEED_ID = 8;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -71,6 +75,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+                 mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+        }
         return rootView;
     }
 
@@ -105,24 +113,30 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return shareIntent;
     }
 
+    public void onGameChanged( String newGameID ) {
+        Uri uri = mUri;
+        if (null != uri) {
+            long id = Long.valueOf(NewsContract.NewsEntry.getIdFromUri(uri));
+            mUri = NewsContract.NewsEntry.buildNewsWithGameIdAndNewsID(newGameID, id);
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         Log.v(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
+        if ( null != mUri ) {
+            // Return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    mUri,
+                    News_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
         }
-
-        // Return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                News_COLUMNS,
-                null,
-                null,
-                null
-        );
+        return null;
     }
 
     @Override
@@ -136,13 +150,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         String contents = data.getString(COL_NEWS_CONTENTS);
         String url = data.getString(COL_NEWS_URL);
 
+        @SuppressWarnings("ConstantConditions")
         TextView detailContentTextView = (TextView)getView().findViewById(R.id.detail_contents);
         TextView detailTitleTextView = (TextView)getView().findViewById(R.id.detail_title);
         TextView detailAuthorTextView = (TextView)getView().findViewById(R.id.detail_author);
         TextView detailDateTextView = (TextView)getView().findViewById(R.id.detail_date);
         TextView detailUrlTextView = (TextView)getView().findViewById(R.id.detail_url);
-        container = (RelativeLayout)getView().findViewById(R.id.image_container);
         progressBar = (ProgressBar)getView().findViewById(R.id.loading_image_progress);
+        container = (RelativeLayout) getView().findViewById(R.id.image_container);
 
         ImageView image = (ImageView) getView().findViewById(R.id.image);
         String imageUrl = Utility.findUrl(contents);
@@ -179,7 +194,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
     }
 
     private void loadImage(final String imageUrl, final ImageView image){
@@ -248,7 +262,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             @Override
             public void onLoadingCancelled(String s, View view) {
-
             }
         });
 

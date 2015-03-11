@@ -1,6 +1,6 @@
 package com.example.app.steamnews.Fragments;
 
-import android.content.Intent;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +15,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
 
-import com.example.app.steamnews.*;
 import com.example.app.steamnews.Extras.FetchNewsTask;
 import com.example.app.steamnews.Extras.NewsAdapter;
 import com.example.app.steamnews.Extras.Utility;
@@ -31,6 +30,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     private ListView news_list;
     private static final String NUM_OF_NEWS_KEY = "num_of_news";
     private static final String SELECTED_KEY = "selected_position";
+    private boolean mUseFirstItemLayout = true;
 
     private static final String[] News_COLUMNS = {
             NewsEntry.TABLE_NAME + "." + NewsEntry._ID,
@@ -47,11 +47,19 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public static final int COL_NEWS_GAME_ID = 1;
     public static final int COL_NEWS_DATE = 2;
     public static final int COL_NEWS_TITLE = 3;
-    public static final int COL_NEWS_CONTENTS = 4;
+/*  public static final int COL_NEWS_CONTENTS = 4;
     public static final int COL_NEWS_AUTHOR = 5;
     public static final int COL_NEWS_FEED_LABEL = 6;
     public static final int COL_NEWS_URL = 7;
-    public static final int COL_NEWS_ONLINE_FEED_ID = 8;
+    public static final int COL_NEWS_ONLINE_FEED_ID = 8; */
+
+
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri idUri);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,6 +68,10 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
 
         titles_adapter = new NewsAdapter(getActivity(), null, 0);
         news_list = (ListView) rootView.findViewById(R.id.listview_news);
+        View footerView = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.list_footer, null, false);
+
+        news_list.addFooterView(footerView);
         news_list.setAdapter(titles_adapter);
         news_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,8 +81,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 long News_Id = cursor.getLong(COL_NEWS_ID);
                 if (cursor != null) {
-                    Intent intent = new Intent(getActivity(), DetailActivity.class).setData(NewsEntry.buildNewsWithGameIdAndNewsID(GAMEID,News_Id));
-                    startActivity(intent);
+                    ((Callback) getActivity()).onItemSelected(NewsEntry.buildNewsWithGameIdAndNewsID(GAMEID,News_Id));
                 }
                 NewsContract.mPosition = position;
             }
@@ -91,11 +102,17 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
             // to, do so now.
             news_list.smoothScrollToPosition(NewsContract.mPosition);
         }
+        titles_adapter.setUseFirstItemLayout(mUseFirstItemLayout);
         return rootView;
     }
 
+    public void onGameChanged() {
+        updateNewsFeed();
+        getLoaderManager().restartLoader(NEWS_LOADER, null, this);
+    }
+
     private void updateNewsFeed(){
-        FetchNewsTask FetchNews = new FetchNewsTask(getActivity());
+        FetchNewsTask FetchNews = new FetchNewsTask(getActivity(),getView());
         FetchNews.execute(NewsContract.num_of_news);
     }
 
@@ -105,8 +122,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         if(GAMEID == null) {
             GAMEID = Utility.getPreferredGame(getActivity());
         }
-        if(NewsContract.mPosition == 0)
-        {
+        if(NewsContract.mPosition == 0) {
             news_list.setSelection(0);
         }
         updateNewsFeed();
@@ -134,8 +150,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         if (NewsContract.mPosition != ListView.INVALID_POSITION) {
             outState.putInt(SELECTED_KEY, NewsContract.mPosition);
         }
-        if(NewsContract.num_of_news != 10)
-        {
+        if(NewsContract.num_of_news != 10) {
             outState.putInt(NUM_OF_NEWS_KEY, NewsContract.num_of_news);
         }
         super.onSaveInstanceState(outState);
@@ -161,7 +176,6 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                 null,
                 sortOrder
         );
-
     }
 
     @Override
@@ -197,7 +211,6 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
                 }
             }
         });
-
     }
 
     @Override
@@ -206,5 +219,12 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         // above is about to be closed.  We need to make sure we are no
         // longer using it.
         titles_adapter.swapCursor(null);
+    }
+
+    public void setUseFirstItemLayout(boolean UseFirstItemLayout) {
+        mUseFirstItemLayout = UseFirstItemLayout;
+        if (titles_adapter != null) {
+            titles_adapter.setUseFirstItemLayout(mUseFirstItemLayout);
+        }
     }
 }

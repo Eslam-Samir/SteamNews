@@ -2,4 +2,10 @@
 <resources>
     <color name="text_color">#FFFFFF</color>
     <color name="theme_background">#bf060009</color>
+    <color name="list_item_selected_color">#ff5aa2cf</color>
+    <color name="actionbar_color">#ff4d484e</color>
+    <color name="actionbar_color_Dark">#000000</color>
+    <color name="links_color">#c44ba2c4</color>
+    <color name="links_color_pressed">#FFFFFF</color>
+
 </resources>

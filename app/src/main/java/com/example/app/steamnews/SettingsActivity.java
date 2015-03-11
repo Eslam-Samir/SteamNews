@@ -8,7 +8,6 @@ package com.example.app.steamnews;
         import android.preference.Preference;
         import android.preference.PreferenceActivity;
         import android.preference.PreferenceManager;
-        import android.widget.ListView;
 
         import com.example.app.steamnews.Extras.FetchNewsTask;
         import com.example.app.steamnews.data.NewsContract;
@@ -19,6 +18,7 @@ public class SettingsActivity extends PreferenceActivity
     // since we use the preference change initially to populate the summary
     // field, we'll ignore that change at start of the activity
     boolean mBindingPreference;
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +89,7 @@ public class SettingsActivity extends PreferenceActivity
         return true;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public Intent getParentActivityIntent() {
