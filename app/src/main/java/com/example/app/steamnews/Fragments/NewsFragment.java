@@ -1,6 +1,8 @@
 package com.example.app.steamnews.Fragments;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,19 +12,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
 
-import com.example.app.steamnews.Extras.FetchNewsTask;
 import com.example.app.steamnews.Extras.NewsAdapter;
 import com.example.app.steamnews.Extras.Utility;
 import com.example.app.steamnews.R;
 import com.example.app.steamnews.data.NewsContract;
 import com.example.app.steamnews.data.NewsContract.NewsEntry;
+import com.example.app.steamnews.service.SteamNewsService;
 
-//TODO use services (syncadapter) to get notification
+//TODO use syncadapter and broadcast receiver to get notification
 public class NewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NEWS_LOADER = 0;
     private String GAMEID ;
@@ -31,6 +34,7 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String NUM_OF_NEWS_KEY = "num_of_news";
     private static final String SELECTED_KEY = "selected_position";
     private boolean mUseFirstItemLayout = true;
+    private LinearLayout list_footer ;
 
     private static final String[] News_COLUMNS = {
             NewsEntry.TABLE_NAME + "." + NewsEntry._ID,
@@ -68,8 +72,10 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
 
         titles_adapter = new NewsAdapter(getActivity(), null, 0);
         news_list = (ListView) rootView.findViewById(R.id.listview_news);
+
         View footerView = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.list_footer, null, false);
+        list_footer = (LinearLayout) footerView.findViewById(R.id.list_footer);
 
         news_list.addFooterView(footerView);
         news_list.setAdapter(titles_adapter);
@@ -112,8 +118,11 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private void updateNewsFeed(){
-        FetchNewsTask FetchNews = new FetchNewsTask(getActivity(),getView());
-        FetchNews.execute(NewsContract.num_of_news);
+        list_footer.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(getActivity(), SteamNewsService.class);
+            intent.putExtra(SteamNewsService.GAME_QUERY_EXTRA, Utility.getPreferredGame(getActivity()));
+            intent.putExtra(SteamNewsService.NEWS_NUM_QUERY_EXTRA, NewsContract.num_of_news);
+            getActivity().startService(intent);
     }
 
     @Override
@@ -182,6 +191,9 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         // Swap the new cursor in.
         titles_adapter.swapCursor(cursor);
+        if(!isMyServiceRunning(SteamNewsService.class)) {
+            list_footer.setVisibility(View.GONE);
+        }
 
         news_list.setOnScrollListener(new AbsListView.OnScrollListener() {
             int currentFirstVisibleItem;
@@ -205,13 +217,16 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
             /*detects if there's been a scroll which has completed */
             private void isScrollCompleted() {
                 if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE) {
-                    NewsContract.num_of_news = NewsContract.num_of_news + 5;
-                    updateNewsFeed();
+                    if(!isMyServiceRunning(SteamNewsService.class)) {
+                        NewsContract.num_of_news = NewsContract.num_of_news + 5;
+                        updateNewsFeed();
+                    }
                     getLoaderManager().restartLoader(NEWS_LOADER, null, NewsFragment.this);
                 }
             }
         });
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
@@ -226,5 +241,15 @@ public class NewsFragment extends Fragment implements LoaderManager.LoaderCallba
         if (titles_adapter != null) {
             titles_adapter.setUseFirstItemLayout(mUseFirstItemLayout);
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

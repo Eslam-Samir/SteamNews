@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.widget.ListView;
 
-import com.example.app.steamnews.Extras.Utility;
-
 public class NewsContract {
 /*
     public static final int COL_NEWS_ID = 0;

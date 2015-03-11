@@ -9,8 +9,9 @@ package com.example.app.steamnews;
         import android.preference.PreferenceActivity;
         import android.preference.PreferenceManager;
 
-        import com.example.app.steamnews.Extras.FetchNewsTask;
+        import com.example.app.steamnews.Extras.Utility;
         import com.example.app.steamnews.data.NewsContract;
+        import com.example.app.steamnews.service.SteamNewsService;
 
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
@@ -74,8 +75,12 @@ public class SettingsActivity extends PreferenceActivity
                     if (preference.getKey().equals(getString(R.string.pref_game_key))) {
                         NewsContract.num_of_news = 10;
                         NewsContract.mPosition = 0;
-                        FetchNewsTask newsTask = new FetchNewsTask(this);
-                        newsTask.execute(10);
+
+                        Intent intent = new Intent(this, SteamNewsService.class);
+                        intent.putExtra(SteamNewsService.GAME_QUERY_EXTRA,Utility.getPreferredGame(this));
+                        intent.putExtra(SteamNewsService.NEWS_NUM_QUERY_EXTRA,10);
+                        startService(intent);
+
                     } else {
                         // notify code that news may be impacted
                         getContentResolver().notifyChange(NewsContract.NewsEntry.CONTENT_URI, null);
